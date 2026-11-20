@@ -8,7 +8,7 @@
 
 **设计建议**：以下模型、接口、目录、沙箱、安全控制、测试矩阵和升级台账均为拟议实现。示例不是 Archify 原生 Schema 或已发布 API。
 
-**本次实施边界**：维护交接已确认真实fork及parent，本轮受控SSH probe成功，取得v3.2.0远端tag及解引用SHA；但clone和恢复fetch均180秒超时，本地无有效HEAD，不能核固定版本许可或运行CLI。没有子模块或锁定集成，没有渲染/部署/独立验收；现场记录见[引擎核验](engine-verification.md)。禁止用占位SHA、远端refs或空目录冒充接入完成。
+**本次实施边界**：维护恢复了v3.2.0完整可达提交历史（1732提交、非shallow，blob按需）。已实际核固定版MIT许可、受控建立vendor/archify gitlink并从该路径完成workflow校验、HTML生成及静态check。子模块本地非引擎路径仍有未物化文件呈删除的dirty缺口，详见[引擎核验](engine-verification.md)。没有Ordo界面、浏览器渲染或独立验收；不将静态check冒报视觉验收。
 
 ## 2. 产品边界与阅读场景
 
@@ -40,7 +40,7 @@
 
 ## 4. 适配层与交互容器
 
-拟议目录：`src/model/` 管模型与迁移，`src/adapters/archify/` 管上游转换与调用，`src/reader/` 管阅读体验，`vendor/archify` 是未来固定引擎子模块。当前这些目录与代码均未创建。
+拟议目录：`src/model/` 管模型与迁移，`src/adapters/archify/` 管上游转换与调用，`src/reader/` 管阅读体验；这些产品代码未创建。`vendor/archify`已实际建立固定引擎子模块。
 
 拟议契约（伪接口，不是当前可调用 API）：
 
@@ -65,7 +65,7 @@ mapDiagnostic(engineDiagnostic, stableIdMap) -> productDiagnostic
 
 计划用 `vendor/archify` Git submodule 固定**完整 40 位提交 SHA**。引擎 PR 验证与集成完成后，产品另开变更更新 gitlink；构建只读取已提交 gitlink，不使用 `--remote` 或随 main 自动漂移。交付应能证明新环境可取得该提交，记录工具链与依赖锁定信息，不能仅因本地缓存可用就称可复现。
 
-当前引擎fork已确认创建；远端v3.2.0候选commit为`208acba8d412335185b2056fedf54b3405df43fb`，尚未取得完整本地对象或按SHA核许可证，因此没有选定集成SHA，也没有`.gitmodules`或gitlink。待接入不阻塞产品文档独立发布。
+当前引擎fork已确认创建，实际gitlink固定v3.2.0 commit `208acba8d412335185b2056fedf54b3405df43fb`，`.gitmodules`为具名fork HTTPS URL；已核MIT及第三方声明，CLI正/负例、HTML静态检查完成。子模块本地dirty物化缺口、新环境获取及独立验证仍待处理。
 
 ## 6. Agent 辅助升级：审阅与集成独立检查点
 
@@ -79,7 +79,7 @@ mapDiagnostic(engineDiagnostic, stableIdMap) -> productDiagnostic
 |引擎实际集成|fork 基线 SHA、目标 SHA、merge/cherry-pick/移植映射、PR与测试|证明哪些代码进入引擎，不能只写“跟进最新”|
 |产品实际集成|旧/新 gitlink、模型/适配版本、产品 PR、产物与验收|引擎通过不自动等于产品通过|
 
-台账初始三项均为**未建立**，不填写虚构 SHA 或 PR。上游审阅前进可以与实际集成停留在旧版并存，必须保留两个独立游标。
+本轮游标：上游审阅限于v3.2.0固定SHA的许可、包元数据、CLI与workflow样例；引擎无自有补丁，保持该原始SHA；产品gitlink固定该SHA并经PR1提交，尚未合并或独立验收。上游审阅前进可以与实际集成停留在旧版并存，必须保留两个独立游标。
 
 升级优先整版 merge，保留上下游关系；独立修复可 cherry-pick 并记录来源提交；明显分化功能按产品架构移植，记录对应关系和未采纳部分。文本无冲突不等语义兼容，release notes 阅读不代替源码和测试。
 
@@ -94,7 +94,7 @@ mapDiagnostic(engineDiagnostic, stableIdMap) -> productDiagnostic
 5. 真实渲染：旧/新基线同输入视觉对照、窄屏、键盘/焦点、读屏；自动检查与人工结果分列。
 6. 独立评审与测试：未参与实施者核验同一 SHA，CI 与产品验收材料齐备后，由指定集成人串行集成。
 
-本次仅检查 Markdown、暂存差异、身份尾注、秘密特征与仓库分支；没有组件/API测试、引擎测试、构建、浏览器、视觉或读屏结果。没有应用，组件状态覆盖为后续要求而非已测状态。
+本次检查Markdown、暂存差异、身份尾注、秘密特征、gitlink与仓库分支，并实际执行固定版CLI workflow校验、非模型负例、HTML生成和9项静态check。没有全量上游测试、产品组件/API测试、浏览器、视觉或读屏结果。没有应用，组件状态覆盖为后续要求而非已测状态。
 
 ## 8. 回退与后续交接
 
@@ -102,4 +102,4 @@ mapDiagnostic(engineDiagnostic, stableIdMap) -> productDiagnostic
 
 本次文档无运行时或数据迁移；如需撤销已发布方案，按授权用后续 revert 提交保留历史，不清理仓库。开发/测试/生产部署另行授权与隔离，仓库推送不等站点上线。
 
-后续最小交接：维护者排查受控clone/fetch180秒超时，保留半成品仓并通过原入口恢复完整历史 → 按稳定tag及完整SHA核许可/CLI测试 → 产品gitlink PR独立验证 → 最小阅读链路实现。fork账号类型问题已由1.4.0修复并真实创建，不再作为当前阻塞。Ordo使用独立engine-v1贡献分支；PR显式base/head，以当次核验远端默认为base，不推默认分支，不更改默认或自行合并。无引擎修改时无需制造引擎补丁提交或PR。
+后续最小交接：维护者处理受控submodule本地未物化文件呈删除的dirty状态 → PR1独立核固定gitlink及新环境复现、浏览器与回归 → 最小阅读链路实现。旧fork/历史传输阻塞已恢复，不再重复clone全仓。Ordo使用独立engine-v1贡献分支，不推默认、不更改默认或自行合并。无引擎修改时无需制造引擎补丁提交或PR。

@@ -1,0 +1,3 @@
+[submodule "vendor/archify"]
+	path = vendor/archify
+	url = https://github.com/RuijinShanhai/archify.git

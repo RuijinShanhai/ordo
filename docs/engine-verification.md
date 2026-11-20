@@ -1,55 +1,49 @@
-# 引擎现场核验与接入状态
+# 固定版本引擎接入与真实验证
 
-日期：2026-11-20；Task-ID `ORDO-INIT-20261118-001`；Run-ID `ORDO-INIT-20261118-001-ENGINE-20261120-R5`。
-执行者：精卫 / 00000001 / frontend-component-engineer。平台session/task ID未提供。本文为自检，不是独立验收。
+2026-11-20；Task-ID `ORDO-INIT-20261118-001`；Run-ID `ORDO-INIT-20261118-001-ENGINE-20261120-R6`。
+精卫/00000001/frontend-component-engineer。平台session/task ID未提供；自检不代独立验收。
 
-## 已确认事实
+## 版本与实际gitlink
 
-- 产品基线 `3aacc2af6611d09a9acb71088cd33decb0ad1057`，本轮开始HEAD `4f062b19ebd75c0d16e55e295c0b7bc8e4ee4ee3`，任务worktree干净。
-- 贡献分支 `agent/00000001/ORDO-INIT-20261118-001-engine-v1`；PR <https://github.com/RuijinShanhai/ordo/pull/1>，不推默认分支，不合并部署。
-- 维护交接 `FORK-RESULT.md` 已记录真实fork <https://github.com/RuijinShanhai/archify>、parent `tt-a1i/archify`，API创建后和幂等核验成功。本轮不重复创建fork。
-- 入口 `ordo_task.py --help` 确认1.4.0。`check --repo ordo` exit0，真实任务隔离通过；组织resolve exit0，registry1.4.1，组织check exit2 `foreign repository worktree`。外仓例外不冒称共享门禁通过。
+- fork <https://github.com/RuijinShanhai/archify>，parent `tt-a1i/archify`，维护交接已API核验。
+- tag `v3.2.0`，tag对象 `e62275b6373fa63436e195635835c313ce028b21`，commit **`208acba8d412335185b2056fedf54b3405df43fb`**。选用本次具名恢复的最高非预发布后缀版本；不以main替代，不声称签名可信或全功能稳定性验收。
+- 入口1.5.0，两仓check exit0；产品起始HEAD `ca4cc4a3727b5ceb643949ef0eab720440f0ad30`。组织resolve exit0/registry1.4.1，外仓例外不是共享组织准入通过。
+- 维护已恢复固定tag可达1732提交，非shallow，commit/tree历史完整；历史blob按需，不意味着提交历史丢失。引擎worktree sparse仅物化archify/及根许可等范围，不声称全部分支和blob下载完毕。
+- 受控 `submodule --repo ordo --sha 208acba8d412335185b2056fedf54b3405df43fb` **exit0/submodule-staged**。真实index为`160000 208acba8d412335185b2056fedf54b3405df43fb vendor/archify`，`.gitmodules` URL精确为`https://github.com/RuijinShanhai/archify.git`；子模块detached HEAD相同，1732提交、非shallow。
 
-## 本轮真实执行记录
+### 本地物化缺口（未隐藏）
 
-以下入口路径均为 `/workspace/deploy/tools/opencode/ordo_task.py`，使用Python3.11.2；Git2.39.5，Node v24.22.2。命令原始输出保存在执行会话；非秘密摘要同步至任务交付目录。
+1.5.0 submodule调用本地clone/no-checkout、remote set-url、checkout，返回成功且CLI可运行。但后续真实 `git -C vendor/archify status --short` 显示大量非archify路径为` D`，父仓显示`Am vendor/archify`。例如CONTRIBUTING.md、REVIEWING.md、test/、viewer/、website/等未在工作树物化，`ls-files -v CONTRIBUTING.md`为H而非skip-worktree；子模块index无暂存改动。它不是干净完整checkout，也不能直接把这些删除叫作正确sparse状态。
 
-|命令|结果|
-|---|---|
-|`python3 …/ordo_task.py clone --repo archify` 首次|父bash工具120000ms超时终止，未得到入口退出码，不报成功|
-|同命令再次，父工具240000ms预算|入口exit2 rejected：内部Git clone在180秒超时|
-|`python3 …/ordo_task.py probe --repo archify`|exit0 `git-ssh-readable`，非空refs，API authentication未检查|
-|`python3 …/ordo_task.py worktree --repo archify`|入口exit2 rejected：内部 `fetch --no-tags --no-recurse-submodules … refs/heads/main` 在180秒超时|
-|`git -C /workspace/archify rev-parse --verify HEAD`|exit128 `Needed a single revision`|
-|`git -C /workspace/archify show-ref --tags`|exit1，无本地tag引用|
-|产品 `git status --short`|exit0，无改动（文档修改前）|
+没有手工删除、修改子模块源码或隐藏dirty标志；未原生checkout/reset/config补救。固定gitlink仍指原始commit，不包含这些未暂存删除。需有权维护者修复受控子模块物化/索引一致性并重验干净状态。新环境通过远端取得gitlink也尚未独立实测；本轮不宣称完整可复现或完全交付验收。
 
-clone留下 `/workspace/archify/.git`，没有源码检出，未覆盖、删除、清理或重新初始化该目录。worktree恢复尝试仍经原受控入口；失败后未用原生fetch/clone、其他协议、浅历史或修改入口超时来绕过。没有可用引擎worktree，因此没有执行submodule，也没有伪写`.gitmodules`或gitlink。
+## 固定版许可实读
 
-## 已取得的远端版本候选（不是本地锁定）
+根LICENSE及archify/LICENSE为MIT，版权2026 tt-a1i及2025 Cocoon AI，分发需保留版权及许可。旧动态main Apache-2.0记录不适用于此SHA。
 
-真实SSH probe返回：
+已读根THIRD_PARTY_NOTICES.md：Simple Icons16.28.0集合CC0不代表每个标志都CC0，个别含CC-BY、CC-BY-SA、CC-BY-NC-SA及商标限制；OpenAI标志另循品牌指南。JetBrains Mono嵌入字体为OFL1.1，完整文本在`archify/assets/JetBrainsMono-OFL.txt`（已读），HTML携带字体CSS许可。Pele1.3.0为MIT，许可在`archify/explainer/vendor/pele/`。根及archify/没有独立命名NOTICE文件，实际第三方声明是THIRD_PARTY_NOTICES.md。本次选择不指定品牌标志的workflow例子；不作一般商用权利清理或法律合规保证。
 
-|引用|40位SHA|
-|---|---|
-|`HEAD`、`refs/heads/main`|`44781293f38728baf04dbad33ce1a0cef8c39cca`|
-|`refs/tags/v3.2.0`|`e62275b6373fa63436e195635835c313ce028b21`|
-|`refs/tags/v3.2.0^{}`|`208acba8d412335185b2056fedf54b3405df43fb`|
-|`refs/tags/v3.1.0`|`2e1dba8653b800400f41c84a058561e960c21963`|
-|`refs/tags/v3.1.0^{}`|`1c2b42d660e4a7571813fb43839c79e3e9ca7720`|
+## 实际命令与结果
 
-`v3.2.0`为本次所见最高无预发布后缀的主版本tag候选；仅凭refs不能证明发布稳定性、签名可信、适用性、许可或本地对象完整。尚未选定集成版本，不以动态main替代稳定tag。
+工具：Git2.39.5、Python3.11.2、Node v24.22.2；package version3.2.0/type module/Node>=18。无需npm依赖安装，无live Skill安装。以下`CLI`表示`node vendor/archify/archify/bin/archify.mjs`，从产品任务worktree运行：
 
-## 许可、CLI及验收边界
+```sh
+node vendor/archify/archify/bin/archify.mjs --help
+node vendor/archify/archify/bin/archify.mjs validate workflow vendor/archify/archify/examples/agent-tool-call.workflow.json --json
+node vendor/archify/archify/bin/archify.mjs render workflow vendor/archify/archify/examples/agent-tool-call.workflow.json /workspace/deliverables/ordo/agent-tool-call-vendor-r6.html
+node vendor/archify/archify/bin/archify.mjs check /workspace/deliverables/ordo/agent-tool-call-vendor-r6.html --json
+```
 
-旧方案记有未锁定动态main的Apache-2.0阅读记录，**不能代替上述候选SHA的LICENSE/NOTICE/第三方声明核验**。本轮未读到固定版本源码、包清单、CLI帮助或许可证；不确认候选仍为Apache-2.0，不作法律合规保证。没有依赖安装、样例校验、HTML生成、引擎测试或浏览器渲染结果。
+帮助最初从引擎worktree同版CLI读取exit0。引擎worktree及vendor路径各运行validate/render/check均成功exit0；validate和check各9项静态检查通过，composition errors0/warnings0。输入4939 bytes，SHA256 `d67965d50872c97e4ff3476271e645bf19fab6b3ab44e111bdb44b063e3aa36f`。
 
-没有组件API实现；loading/empty/error/success/focus、视觉、键盘、读屏和容器安全均未测试。没有独立验收、CI结论、合并、上线、默认分支或远端保护变更。
+两路径生成HTML相同：830859 bytes，SHA256 **`38220f39f8110f9f0b1fdbd96fd750bd33a3750de45dc2913827e3fc30224c85`**。产物保存`deliverables/ordo/agent-tool-call-r6.html`及`agent-tool-call-vendor-r6.html`，不把830KB测试产物提交产品仓。
 
-## 最小续办条件
+负例：将固定版package.json作为workflow输入，validate输出ok:false/schema required及additionalProperties诊断，符合拒绝非模型输入预期，不是产品Schema实现。精确子退出码/原始JSON由任务验证日志记录。
 
-1. 由有权维护者核查受控clone/fetch 180秒超时，保留现有半成品仓，不要求精卫改控制入口或清理目录；提供能在原入口完成完整历史传输的方案和实际结果。
-2. 源码到位后经受控worktree/check，取得真实tag对象与完整commit，核LICENSE/NOTICE/第三方声明、版本发布说明与CLI帮助。
-3. 按该版本已有样例实际运行校验和HTML生成，记录各子退出码、工具链、日志与产物摘要；浏览器交互另测。
-4. 仅在具名引擎worktree存在已审commit后，用受控 `submodule --repo ordo --sha <真实40位commit>` 固定 `vendor/archify`；审查精确`.gitmodules`与160000 gitlink。
-5. 产品受控review/commit/push更新PR1，独立评审和测试由未参与实施者承担。新环境取得同一提交及回退演练仍需单独实证。
+check的provenance为`unknown`：这里只用render/check，不将它冒报有delivery证明的finalize成功。HTML已生成但未在浏览器打开；静态几何检查不等视觉一致、键盘/读屏或可访问性验收。
+
+## 交接与剩余项
+
+本次实现只有固定引擎gitlink和CLI最小链路，无引擎补丁、Ordo模型/适配器或阅读界面，不制造引擎补丁PR。PR1由贡献head提交推送更新，不重复create；只读核实际远端head。没有默认分支变更、合并、生产部署、CI通过声明或独立验收。
+
+维护需处理上述本地子模块dirty物化缺口；独立方需核同SHA的新环境获取、许可保留、浏览器/安全/交互、必要回归与CI。模型/API及loading/empty/error/success/focus等状态为后续实现，未报覆盖；回退演练未执行。
