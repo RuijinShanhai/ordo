@@ -13,7 +13,7 @@ Ordo 是流程阅读与路径探索产品，与文档查看产品 Folio、前端
 |事项|状态|
 |---|---|
 |独立产品仓方案|已归档；仓库提交/发布证据以实际 Git 引用为准|
-|Archify 引擎 fork|目标为 `RuijinShanhai/archify`；2026-11-20 API认证成功，但受控fork内部gh退出1，尚未确认创建，详见[现场核验](docs/engine-verification.md)|
+|Archify 引擎 fork|已真实创建，parent 为 `tt-a1i/archify`；本轮 SSH probe 成功，clone/fetch 触发受控入口180秒超时，详见[现场核验](docs/engine-verification.md)|
 |固定 SHA 引擎依赖|待引擎仓核验后接入；当前没有 submodule、gitlink 或锁定 SHA|
 |流程模型、适配器及阅读界面|设计建议，未实施|
 |PR、独立验收、在线部署|本轮文档通过独立贡献分支申请PR；独立验收与部署未完成，提交推送不等于集成或部署|
@@ -43,8 +43,8 @@ Ordo 产品界面（目录、搜索、业务说明、文档关联、版本导航
 ## 上游与许可
 
 - 上游：[tt-a1i/archify](https://github.com/tt-a1i/archify)。
-- 指定引擎 fork 目标：[RuijinShanhai/archify](https://github.com/RuijinShanhai/archify)（目标链接不证明仓库已创建）。
-- 最新状态与复现步骤：[引擎现场核验](docs/engine-verification.md)。认证成功不等于fork创建成功；当前没有已验证稳定tag或固定引擎SHA，不以默认HEAD替代。
+- 指定引擎 fork：[RuijinShanhai/archify](https://github.com/RuijinShanhai/archify)；维护交接已核真实fork与parent，本轮已核SSH可读。
+- 最新状态与复现步骤：[引擎现场核验](docs/engine-verification.md)。已取得远端 `v3.2.0` tag及解引用SHA，但尚未取得完整本地提交对象或核验许可，不能称已锁定接入或已验证稳定版。
 - 方案继承此前对上游动态 main 的 README、Schema 说明及 Apache-2.0 LICENSE 的阅读记录；本轮没有重新拉取源码、固定上游版本或运行引擎。
 - 实际接入/分发前重新核对固定 SHA 下的 LICENSE、NOTICE、第三方声明及修改标识。上游许可不自动决定 Ordo 自身许可；本仓尚未声明产品开源许可证。
 

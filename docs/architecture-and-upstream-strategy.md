@@ -8,7 +8,7 @@
 
 **设计建议**：以下模型、接口、目录、沙箱、安全控制、测试矩阵和升级台账均为拟议实现。示例不是 Archify 原生 Schema 或已发布 API。
 
-**本次实施边界**：本轮已真实复核API认证成功（principal `RuijinShanhai`），并调用受控fork，但内部gh退出1、入口退出2且隐藏原始错误，未确认创建成功。不能沿用“未认证”作为当前结论，也不能从读取失败断言目标不存在。没有子模块或锁定集成，没有渲染/部署/独立验收；现场记录见[引擎核验](engine-verification.md)。禁止用占位 SHA、空目录或手写 `.gitmodules` 冒充接入完成。
+**本次实施边界**：维护交接已确认真实fork及parent，本轮受控SSH probe成功，取得v3.2.0远端tag及解引用SHA；但clone和恢复fetch均180秒超时，本地无有效HEAD，不能核固定版本许可或运行CLI。没有子模块或锁定集成，没有渲染/部署/独立验收；现场记录见[引擎核验](engine-verification.md)。禁止用占位SHA、远端refs或空目录冒充接入完成。
 
 ## 2. 产品边界与阅读场景
 
@@ -65,7 +65,7 @@ mapDiagnostic(engineDiagnostic, stableIdMap) -> productDiagnostic
 
 计划用 `vendor/archify` Git submodule 固定**完整 40 位提交 SHA**。引擎 PR 验证与集成完成后，产品另开变更更新 gitlink；构建只读取已提交 gitlink，不使用 `--remote` 或随 main 自动漂移。交付应能证明新环境可取得该提交，记录工具链与依赖锁定信息，不能仅因本地缓存可用就称可复现。
 
-当前引擎 fork 未确认创建、版本/许可证未按 SHA 重核，因此这里没有具体 SHA，也没有 `.gitmodules` 或 gitlink。待接入不阻塞产品文档独立发布。
+当前引擎fork已确认创建；远端v3.2.0候选commit为`208acba8d412335185b2056fedf54b3405df43fb`，尚未取得完整本地对象或按SHA核许可证，因此没有选定集成SHA，也没有`.gitmodules`或gitlink。待接入不阻塞产品文档独立发布。
 
 ## 6. Agent 辅助升级：审阅与集成独立检查点
 
@@ -102,4 +102,4 @@ mapDiagnostic(engineDiagnostic, stableIdMap) -> productDiagnostic
 
 本次文档无运行时或数据迁移；如需撤销已发布方案，按授权用后续 revert 提交保留历史，不清理仓库。开发/测试/生产部署另行授权与隔离，仓库推送不等站点上线。
 
-后续最小交接：维护者提供fork失败的脱敏stderr并核入口的账号类型处理（当前固定传`--org RuijinShanhai`，不据此断定失败原因） → 受控fork核真实parent/历史 → 按稳定tag及完整SHA核许可/CLI测试 → 产品gitlink PR独立验证 → 最小阅读链路实现。Ordo当前已有初始化基线，使用独立engine-v1贡献分支；PR显式base/head，以当次核验远端默认为base，不推默认分支，不更改默认或自行合并。无引擎修改时无需制造引擎补丁提交或PR。
+后续最小交接：维护者排查受控clone/fetch180秒超时，保留半成品仓并通过原入口恢复完整历史 → 按稳定tag及完整SHA核许可/CLI测试 → 产品gitlink PR独立验证 → 最小阅读链路实现。fork账号类型问题已由1.4.0修复并真实创建，不再作为当前阻塞。Ordo使用独立engine-v1贡献分支；PR显式base/head，以当次核验远端默认为base，不推默认分支，不更改默认或自行合并。无引擎修改时无需制造引擎补丁提交或PR。
